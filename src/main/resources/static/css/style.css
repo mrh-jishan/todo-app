@@ -1,0 +1,12 @@
+body {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.list-group-item.todo-completed {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    letter-spacing: -0.5px;
+}
