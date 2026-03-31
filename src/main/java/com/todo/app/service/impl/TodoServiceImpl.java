@@ -36,6 +36,14 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     @Transactional(readOnly = true)
+    public TodoResponse findTodoById(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Todo not found: " + id));
+        return todoMapper.toResponse(todo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public TodoResponse getTodoById(String username, Long id) {
         User user = resolveUser(username);
         return todoMapper.toResponse(resolveTodo(id, user));

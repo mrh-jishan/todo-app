@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${todo.title} + ' - Todo App'">Todo Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Back link -->
+            <a th:href="@{/todos}" class="btn btn-link p-0 mb-3 text-decoration-none text-muted">← Back to list</a>
+
+            <!-- Todo card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1 fw-bold"
+                                th:text="${todo.title}"
+                                th:classappend="${todo.completed} ? 'text-decoration-line-through text-muted' : ''"></h4>
+                            <p th:if="${todo.description != null and !todo.description.isEmpty()}"
+                               class="text-muted mb-2" th:text="${todo.description}"></p>
+                            <small class="text-muted">
+                                By <strong th:text="${todo.ownerUsername}"></strong>
+                                &middot;
+                                <span th:text="${#temporals.format(todo.createdAt, 'MMM d, yyyy')}"></span>
+                            </small>
+                        </div>
+                        <span th:if="${todo.completed}" class="badge bg-success ms-3">Done</span>
+                        <span th:unless="${todo.completed}" class="badge bg-secondary ms-3">Pending</span>
+                    </div>
+
+                    <!-- Owner-only actions -->
+                    <div th:if="${isOwner}" class="d-flex gap-2 mt-3 pt-3 border-top">
+                        <form th:action="@{/todos/{id}/toggle(id=${todo.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-outline-success btn-sm"
+                                    th:text="${todo.completed} ? 'Mark Pending' : 'Mark Done'"></button>
+                        </form>
+                        <a th:href="@{/todos/{id}/edit(id=${todo.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <form th:action="@{/todos/{id}/delete(id=${todo.id})}" method="post"
+                              onsubmit="return confirm('Delete this todo?')">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments section -->
+            <h5 class="fw-bold mb-3">
+                Comments
+                <span class="badge bg-secondary ms-1" th:text="${comments.size()}">0</span>
+            </h5>
+
+            <!-- Comment list -->
+            <div th:if="${comments.isEmpty()}" class="text-muted mb-4">
+                No comments yet. Be the first to comment.
+            </div>
+
+            <div th:unless="${comments.isEmpty()}" class="mb-4">
+                <div th:each="comment : ${comments}" class="card mb-2">
+                    <div class="card-body py-3 px-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold small text-primary mb-1"
+                                     th:text="${comment.authorUsername}"></div>
+                                <div th:text="${comment.content}"></div>
+                                <small class="text-muted"
+                                       th:text="${#temporals.format(comment.createdAt, 'MMM d, yyyy HH:mm')}"></small>
+                            </div>
+                            <!-- Delete own comment -->
+                            <form th:if="${comment.authorUsername == #authentication.principal.username}"
+                                  th:action="@{/todos/{tid}/comments/{cid}/delete(tid=${todo.id}, cid=${comment.id})}"
+                                  method="post" class="ms-3">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0"
+                                        onclick="return confirm('Delete this comment?')">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add comment form -->
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold mb-3">Add a Comment</h6>
+                    <form th:action="@{/todos/{id}/comments(id=${todo.id})}" method="post"
+                          th:object="${commentRequest}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <div class="mb-3">
+                            <textarea class="form-control" th:field="*{content}" rows="3"
+                                      placeholder="Write a comment..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

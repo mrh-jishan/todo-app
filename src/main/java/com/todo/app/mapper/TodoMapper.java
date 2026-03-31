@@ -13,6 +13,7 @@ public class TodoMapper {
                 .title(todo.getTitle())
                 .description(todo.getDescription())
                 .completed(todo.isCompleted())
+                .ownerUsername(todo.getUser().getUsername())
                 .createdAt(todo.getCreatedAt())
                 .updatedAt(todo.getUpdatedAt())
                 .build();

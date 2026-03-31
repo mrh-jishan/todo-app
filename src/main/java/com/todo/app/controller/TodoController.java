@@ -1,6 +1,8 @@
 package com.todo.app.controller;
 
+import com.todo.app.dto.CommentRequest;
 import com.todo.app.dto.TodoRequest;
+import com.todo.app.service.CommentService;
 import com.todo.app.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +18,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class TodoController {
 
     private final TodoService todoService;
+    private final CommentService commentService;
+
+    @GetMapping("/{id}")
+    public String viewTodo(@AuthenticationPrincipal UserDetails userDetails,
+                           @PathVariable Long id,
+                           Model model) {
+        var todo = todoService.findTodoById(id);
+        model.addAttribute("todo", todo);
+        model.addAttribute("comments", commentService.getCommentsForTodo(id));
+        model.addAttribute("commentRequest", new CommentRequest());
+        model.addAttribute("isOwner", todo.getOwnerUsername().equals(userDetails.getUsername()));
+        return "todos/detail";
+    }
 
     @GetMapping
     public String listTodos(@AuthenticationPrincipal UserDetails userDetails, Model model) {

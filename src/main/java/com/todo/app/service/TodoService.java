@@ -9,6 +9,9 @@ public interface TodoService {
 
     List<TodoResponse> getTodosForUser(String username);
 
+    /** Ownership-agnostic lookup — any authenticated user can view a todo by ID. */
+    TodoResponse findTodoById(Long id);
+
     TodoResponse getTodoById(String username, Long id);
 
     TodoResponse createTodo(String username, TodoRequest request);

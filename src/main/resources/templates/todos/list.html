@@ -72,6 +72,8 @@
 
                 <!-- Actions -->
                 <div class="d-flex gap-2 align-self-center">
+                    <a th:href="@{/todos/{id}(id=${todo.id})}"
+                       class="btn btn-outline-primary btn-sm">View</a>
                     <a th:href="@{/todos/{id}/edit(id=${todo.id})}"
                        class="btn btn-outline-secondary btn-sm">Edit</a>
                     <form th:action="@{/todos/{id}/delete(id=${todo.id})}" method="post"
